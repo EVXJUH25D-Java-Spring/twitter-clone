@@ -13,4 +13,6 @@ public interface IPostService {
     Post createPost(CreatePostRequest request) throws CreatePostException;
     List<Post> getAllPosts();
     Optional<Post> getPostById(UUID postId);
+    Optional<Post> getPostByIdWithComments(UUID postId);
+    void deletePostById(UUID postId, String username, String password);
 }

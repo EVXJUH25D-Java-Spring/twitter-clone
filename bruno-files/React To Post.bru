@@ -1,0 +1,25 @@
+meta {
+  name: React To Post
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:8080/react-post
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "Superman",
+    "password": "Lazer123",
+    "postId": "263a6aa8-4a8d-4579-8bc4-57cf4f98ee18",
+    "liked": false
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,51 @@
+package se.deved.twitter_clone.services;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import se.deved.twitter_clone.dtos.PostResponse;
+import se.deved.twitter_clone.dtos.ReactPostRequest;
+import se.deved.twitter_clone.exceptions.*;
+import se.deved.twitter_clone.models.PostReaction;
+import se.deved.twitter_clone.repositories.IPostReactionRepository;
+import se.deved.twitter_clone.repositories.IPostRepository;
+import se.deved.twitter_clone.repositories.IUserRepository;
+import se.deved.twitter_clone.utilities.AuthUtil;
+
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class DefaultPostReactionService implements IPostReactionService {
+
+    private final IPostReactionRepository postReactionRepository;
+    private final IUserRepository userRepository;
+    private final IPostRepository postRepository;
+
+    @Override
+    public PostReaction reactPost(ReactPostRequest request) throws ReactPostException {
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(ReactPostAuthException::new);
+
+        if (!AuthUtil.validatePassword(user, request.getPassword())) {
+            throw new ReactPostAuthException();
+        }
+
+        var post = postRepository.findById(request.getPostId())
+                .orElseThrow(ReactPostNotFoundException::new);
+
+        var existingReaction = postReactionRepository.findByUserAndPost(user, post);
+        PostReaction reaction;
+        if (existingReaction.isPresent()) {
+            reaction = existingReaction.get();
+            reaction.setLiked(request.isLiked());
+            reaction = postReactionRepository.save(reaction);
+            System.out.println("User '" + user.getId() + "' updated reaction to post '" + post.getId() + "'");
+        } else {
+            reaction = new PostReaction(request.isLiked(), user, post);
+            reaction = postReactionRepository.save(reaction);
+            System.out.println("User '" + user.getId() + "' reacted to post '" + post.getId() + "'");
+        }
+
+        return reaction;
+    }
+}

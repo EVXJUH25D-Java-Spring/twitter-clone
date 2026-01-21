@@ -27,4 +27,11 @@ public class PostReaction {
 
     private Date reactedAt;
     private boolean liked;
+
+    public PostReaction(boolean liked, User user, Post post) {
+        this.liked = liked;
+        this.user = user;
+        this.post = post;
+        this.reactedAt = new Date();
+    }
 }

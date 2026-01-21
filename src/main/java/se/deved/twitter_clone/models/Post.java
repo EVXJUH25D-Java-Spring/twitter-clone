@@ -25,7 +25,7 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     private User creator;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

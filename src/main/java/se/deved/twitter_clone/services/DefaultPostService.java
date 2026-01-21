@@ -3,12 +3,11 @@ package se.deved.twitter_clone.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.dtos.CreatePostRequest;
-import se.deved.twitter_clone.exceptions.CreatePostException;
-import se.deved.twitter_clone.exceptions.InvalidContentLengthException;
-import se.deved.twitter_clone.exceptions.MissingUserException;
+import se.deved.twitter_clone.exceptions.*;
 import se.deved.twitter_clone.models.Post;
 import se.deved.twitter_clone.repositories.IPostRepository;
 import se.deved.twitter_clone.repositories.IUserRepository;
+import se.deved.twitter_clone.utilities.AuthUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,14 +23,14 @@ public class DefaultPostService implements IPostService {
     @Override
     public Post createPost(CreatePostRequest request) throws CreatePostException {
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(MissingUserException::new);
+                .orElseThrow(CreatePostAuthException::new);
 
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new MissingUserException();
+        if (!AuthUtil.validatePassword(user, request.getPassword())) {
+            throw new CreatePostAuthException();
         }
 
         if (request.getContent().length() < 5 || request.getContent().length() > 200) {
-            throw new InvalidContentLengthException();
+            throw new InvalidPostContentException();
         }
 
         var post = new Post(request.getContent(), user);
@@ -48,5 +47,29 @@ public class DefaultPostService implements IPostService {
     @Override
     public Optional<Post> getPostById(UUID postId) {
         return postRepository.findById(postId);
+    }
+
+    @Override
+    public Optional<Post> getPostByIdWithComments(UUID postId) {
+        return postRepository.findByIdWithComments(postId);
+    }
+
+    @Override
+    public void deletePostById(UUID postId, String username, String password) {
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(DeletePostAuthException::new);
+
+        if (!AuthUtil.validatePassword(user, password)) {
+            throw new DeletePostAuthException();
+        }
+
+        var post = postRepository.findById(postId)
+                .orElseThrow(DeletePostNotFoundException::new);
+        
+        if (!post.getCreator().getId().equals(user.getId())) {
+            throw new DeletePostNotFoundException();
+        }
+        
+        postRepository.delete(post);
     }
 }

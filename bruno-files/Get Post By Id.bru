@@ -1,0 +1,24 @@
+meta {
+  name: Get Post By Id
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8080/post/:postId?includeComments=true
+  body: none
+  auth: inherit
+}
+
+params:query {
+  includeComments: true
+}
+
+params:path {
+  postId: 263a6aa8-4a8d-4579-8bc4-57cf4f98ee18
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

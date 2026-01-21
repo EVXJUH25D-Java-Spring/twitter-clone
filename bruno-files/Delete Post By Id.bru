@@ -1,0 +1,27 @@
+meta {
+  name: Delete Post By Id
+  type: http
+  seq: 7
+}
+
+delete {
+  url: http://localhost:8080/post/:postId
+  body: json
+  auth: inherit
+}
+
+params:path {
+  postId: 263a6aa8-4a8d-4579-8bc4-57cf4f98ee18
+}
+
+body:json {
+  {
+    "username": "Ironman",
+    "password": "Avengers1"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

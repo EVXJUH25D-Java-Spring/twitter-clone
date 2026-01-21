@@ -1,0 +1,24 @@
+meta {
+  name: Create Post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/post
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "Spring är roligt!",
+    "username": "Ironman",
+    "password": "Avengers1"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
