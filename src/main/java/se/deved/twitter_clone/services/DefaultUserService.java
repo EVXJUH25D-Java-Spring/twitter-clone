@@ -1,6 +1,7 @@
 package se.deved.twitter_clone.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.exceptions.*;
 import se.deved.twitter_clone.models.User;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultUserService implements IUserService {
 
     private final IUserRepository userRepository;
@@ -43,9 +45,8 @@ public class DefaultUserService implements IUserService {
         
         var user = new User(username, password);
         user = userRepository.save(user);
-        // TODO: Implement proper logging
-        System.out.println("User '" + user.getId() + "' with name '" + user.getUsername() + "' created.");
-        
+        log.info("User '{}' with name '{}' created.", user.getId(), user.getUsername());
+
         return user;
     }
 }

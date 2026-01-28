@@ -13,4 +13,7 @@ import java.util.UUID;
 public interface IPostRepository extends JpaRepository<Post, UUID> {
     @Query("SELECT p FROM posts p LEFT JOIN FETCH p.comments WHERE p.id = :id")
     Optional<Post> findByIdWithComments(@Param("id") UUID id);
+
+    // För custom metoder + paging:
+    // Page<Post> findByTitle(String title, Pageable pageable);
 }

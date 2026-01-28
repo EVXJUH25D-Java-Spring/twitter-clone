@@ -1,6 +1,9 @@
 package se.deved.twitter_clone.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.dtos.CreatePostRequest;
 import se.deved.twitter_clone.exceptions.*;
@@ -15,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultPostService implements IPostService {
 
     private final IPostRepository postRepository;
@@ -35,13 +39,26 @@ public class DefaultPostService implements IPostService {
 
         var post = new Post(request.getContent(), user);
         post = postRepository.save(post);
-        System.out.println("Post with id '" + post.getId() + "' created");
+        log.info("Post with id '{}' created", post.getId());
         return post;
     }
 
     @Override
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<Post> getAllPosts(int page, int size) {
+        if (size > 100) {
+            size = 100;
+        }
+
+        if (size < 0) {
+            size = 0;
+        }
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findAll(pageable).toList();
     }
 
     @Override

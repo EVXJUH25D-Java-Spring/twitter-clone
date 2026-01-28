@@ -1,6 +1,7 @@
 package se.deved.twitter_clone.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final IUserService userService;
@@ -45,8 +47,7 @@ public class UserController {
                     .badRequest()
                     .body(new ErrorResponse("That username is taken"));
         } catch (Exception exception) {
-            // TODO: Implement proper logging
-            exception.printStackTrace();
+            log.error("Error creating user", exception);
             return ResponseEntity
                     .internalServerError()
                     .body(new ErrorResponse("Unexpected error"));

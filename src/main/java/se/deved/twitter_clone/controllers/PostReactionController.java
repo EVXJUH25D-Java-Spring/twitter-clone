@@ -1,6 +1,7 @@
 package se.deved.twitter_clone.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import se.deved.twitter_clone.services.IPostReactionService;
 @RestController
 @RequestMapping("/react-post")
 @RequiredArgsConstructor
+@Slf4j
 public class PostReactionController {
 
     private final IPostReactionService postReactionService;
@@ -32,8 +34,7 @@ public class PostReactionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Post could not be found"));
         } catch (Exception exception) {
-            // TODO: Implement proper logging
-            exception.printStackTrace();
+            log.error("Error reacting to post", exception);
             return ResponseEntity
                     .internalServerError()
                     .body(new ErrorResponse("Unexpected error"));

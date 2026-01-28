@@ -1,6 +1,7 @@
 package se.deved.twitter_clone.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.dtos.CreateCommentRequest;
 import se.deved.twitter_clone.exceptions.*;
@@ -12,6 +13,7 @@ import se.deved.twitter_clone.utilities.AuthUtil;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultCommentService implements ICommentService {
 
     private final ICommentRepository commentRepository;
@@ -36,7 +38,7 @@ public class DefaultCommentService implements ICommentService {
 
         var comment = new Comment(request.getContent(), user, post);
         comment = commentRepository.save(comment);
-        System.out.println("Created comment with id '" + comment.getId() + "' for post '" + post.getId() + "'");
+        log.info("Created comment with id '{}' for post '{}'", comment.getId(), post.getId());
 
         return comment;
     }

@@ -1,8 +1,8 @@
 package se.deved.twitter_clone.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import se.deved.twitter_clone.dtos.PostResponse;
 import se.deved.twitter_clone.dtos.ReactPostRequest;
 import se.deved.twitter_clone.exceptions.*;
 import se.deved.twitter_clone.models.PostReaction;
@@ -11,10 +11,9 @@ import se.deved.twitter_clone.repositories.IPostRepository;
 import se.deved.twitter_clone.repositories.IUserRepository;
 import se.deved.twitter_clone.utilities.AuthUtil;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultPostReactionService implements IPostReactionService {
 
     private final IPostReactionRepository postReactionRepository;
@@ -39,11 +38,11 @@ public class DefaultPostReactionService implements IPostReactionService {
             reaction = existingReaction.get();
             reaction.setLiked(request.isLiked());
             reaction = postReactionRepository.save(reaction);
-            System.out.println("User '" + user.getId() + "' updated reaction to post '" + post.getId() + "'");
+            log.info("User '{}' updated reaction to post '{}'", user.getId(), post.getId());
         } else {
             reaction = new PostReaction(request.isLiked(), user, post);
             reaction = postReactionRepository.save(reaction);
-            System.out.println("User '" + user.getId() + "' reacted to post '" + post.getId() + "'");
+            log.info("User '{}' reacted to post '{}'", user.getId(), post.getId());
         }
 
         return reaction;

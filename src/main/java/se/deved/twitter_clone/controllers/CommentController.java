@@ -1,6 +1,7 @@
 package se.deved.twitter_clone.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/comment")
 @RequiredArgsConstructor
+@Slf4j
 public class CommentController {
 
     private final ICommentService commentService;
@@ -40,8 +42,7 @@ public class CommentController {
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("Comment must be at least 6 characters"));
         } catch (Exception exception) {
-            // TODO: Implement proper logging
-            exception.printStackTrace();
+            log.error("Error creating comment", exception);
             return ResponseEntity
                     .internalServerError()
                     .body(new ErrorResponse("Unexpected error"));

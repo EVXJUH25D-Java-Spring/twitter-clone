@@ -1,6 +1,9 @@
 package se.deved.twitter_clone.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +21,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/post")
 @RequiredArgsConstructor
+@Slf4j
 public class PostController {
+
+    // @Slf4j gör detta
+    // private Logger logger = LoggerFactory.getLogger(PostController.class);
 
     private final IPostService postService;
 
@@ -36,19 +43,20 @@ public class PostController {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Wrong username or password"));
         } catch (Exception exception) {
-            // TODO: Implement proper logging
-            exception.printStackTrace();
+            log.error("Error creating post", exception);
             return ResponseEntity
                     .internalServerError()
                     .body(new ErrorResponse("Unexpected error"));
         }
     }
 
-    // TODO: Implement paging
     @GetMapping("/all")
-    public List<PostResponse> getAllPosts() {
+    public List<PostResponse> getAllPosts(
+            @RequestParam int size,
+            @RequestParam int page
+    ) {
         return postService
-                .getAllPosts()
+                .getAllPosts(page, size)
                 .stream()
                 .map(PostResponse::fromModel)
                 .toList();
@@ -86,8 +94,7 @@ public class PostController {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Wrong username or password"));
         } catch (Exception exception) {
-            // TODO: Implement proper logging
-            exception.printStackTrace();
+            log.error("Error deleting post", exception);
             return ResponseEntity
                     .internalServerError()
                     .body(new ErrorResponse("Unexpected error"));
