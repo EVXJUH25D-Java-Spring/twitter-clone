@@ -9,7 +9,5 @@ import java.util.UUID;
 @Setter
 public class ReactPostRequest {
     private boolean liked;
-    private String username;
-    private String password;
     private UUID postId;
 }

@@ -9,7 +9,5 @@ import java.util.UUID;
 @Setter
 public class CreateCommentRequest {
     private String content;
-    private String username;
-    private String password;
     private UUID postId;
 }

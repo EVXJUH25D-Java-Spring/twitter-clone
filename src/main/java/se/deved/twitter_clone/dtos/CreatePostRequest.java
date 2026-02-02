@@ -9,6 +9,4 @@ import java.util.UUID;
 @Setter
 public class CreatePostRequest {
     private String content;
-    private String username;
-    private String password;
 }

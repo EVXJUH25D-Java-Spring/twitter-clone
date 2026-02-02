@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.dtos.ReactPostRequest;
 import se.deved.twitter_clone.exceptions.*;
 import se.deved.twitter_clone.models.PostReaction;
+import se.deved.twitter_clone.models.User;
 import se.deved.twitter_clone.repositories.IPostReactionRepository;
 import se.deved.twitter_clone.repositories.IPostRepository;
 import se.deved.twitter_clone.repositories.IUserRepository;
-import se.deved.twitter_clone.utilities.AuthUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +21,7 @@ public class DefaultPostReactionService implements IPostReactionService {
     private final IPostRepository postRepository;
 
     @Override
-    public PostReaction reactPost(ReactPostRequest request) throws ReactPostException {
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(ReactPostAuthException::new);
-
-        if (!AuthUtil.validatePassword(user, request.getPassword())) {
-            throw new ReactPostAuthException();
-        }
-
+    public PostReaction reactPost(ReactPostRequest request, User user) throws ReactPostException {
         var post = postRepository.findById(request.getPostId())
                 .orElseThrow(ReactPostNotFoundException::new);
 

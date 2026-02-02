@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import se.deved.twitter_clone.dtos.CreatePostRequest;
 import se.deved.twitter_clone.exceptions.*;
 import se.deved.twitter_clone.models.Post;
+import se.deved.twitter_clone.models.User;
 import se.deved.twitter_clone.repositories.IPostRepository;
 import se.deved.twitter_clone.repositories.IUserRepository;
-import se.deved.twitter_clone.utilities.AuthUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,14 +25,7 @@ public class DefaultPostService implements IPostService {
     private final IUserRepository userRepository;
 
     @Override
-    public Post createPost(CreatePostRequest request) throws CreatePostException {
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(CreatePostAuthException::new);
-
-        if (!AuthUtil.validatePassword(user, request.getPassword())) {
-            throw new CreatePostAuthException();
-        }
-
+    public Post createPost(CreatePostRequest request, User user) throws CreatePostException {
         if (request.getContent().length() < 5 || request.getContent().length() > 200) {
             throw new InvalidPostContentException();
         }
@@ -72,14 +65,7 @@ public class DefaultPostService implements IPostService {
     }
 
     @Override
-    public void deletePostById(UUID postId, String username, String password) {
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(DeletePostAuthException::new);
-
-        if (!AuthUtil.validatePassword(user, password)) {
-            throw new DeletePostAuthException();
-        }
-
+    public void deletePostById(UUID postId, User user) {
         var post = postRepository.findById(postId)
                 .orElseThrow(DeletePostNotFoundException::new);
         

@@ -2,16 +2,14 @@ package se.deved.twitter_clone.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import se.deved.twitter_clone.dtos.*;
-import se.deved.twitter_clone.exceptions.DeletePostAuthException;
 import se.deved.twitter_clone.exceptions.DeletePostNotFoundException;
 import se.deved.twitter_clone.exceptions.InvalidPostContentException;
-import se.deved.twitter_clone.exceptions.CreatePostAuthException;
+import se.deved.twitter_clone.models.User;
 import se.deved.twitter_clone.services.IPostService;
 
 import java.net.URI;
@@ -30,18 +28,17 @@ public class PostController {
     private final IPostService postService;
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody CreatePostRequest request) {
+    public ResponseEntity<?> createPost(
+            @RequestBody CreatePostRequest request,
+            @AuthenticationPrincipal User user
+    ) {
         try {
-            var post = postService.createPost(request);
+            var post = postService.createPost(request, user);
             return ResponseEntity.created(URI.create("/post")).body(PostResponse.fromModel(post));
         } catch (InvalidPostContentException ignored) {
             return ResponseEntity
                     .badRequest()
                     .body(new ErrorResponse("Content must be between 5 and 200 characters"));
-        } catch (CreatePostAuthException ignored) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Wrong username or password"));
         } catch (Exception exception) {
             log.error("Error creating post", exception);
             return ResponseEntity
@@ -81,18 +78,14 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePostById(
             @PathVariable UUID postId,
-            @RequestBody DeletePostRequest request
+            @AuthenticationPrincipal User user
     ) {
         try {
-            postService.deletePostById(postId, request.getUsername(), request.getPassword());
+            postService.deletePostById(postId, user);
             return ResponseEntity.noContent().build();
         } catch (DeletePostNotFoundException ignored) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse("Post could not be found"));
-        } catch (DeletePostAuthException ignored) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("Wrong username or password"));
         } catch (Exception exception) {
             log.error("Error deleting post", exception);
             return ResponseEntity

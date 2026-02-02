@@ -1,14 +1,18 @@
 package se.deved.twitter_clone.controllers;
 
+import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import se.deved.twitter_clone.dtos.CreateUserRequest;
 import se.deved.twitter_clone.dtos.ErrorResponse;
+import se.deved.twitter_clone.dtos.LoginUserRequest;
 import se.deved.twitter_clone.dtos.UserResponse;
 import se.deved.twitter_clone.exceptions.IllegalPasswordException;
 import se.deved.twitter_clone.exceptions.IllegalUsernameException;
@@ -26,7 +30,7 @@ public class UserController {
 
     private final IUserService userService;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
         try {
             var user = userService.createUser(request.getUsername(), request.getPassword());
@@ -47,6 +51,23 @@ public class UserController {
                     .badRequest()
                     .body(new ErrorResponse("That username is taken"));
         } catch (Exception exception) {
+            log.error("Error creating user", exception);
+            return ResponseEntity
+                    .internalServerError()
+                    .body(new ErrorResponse("Unexpected error"));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginUserRequest request) {
+        try {
+            var token = userService.authenticateUser(request.getUsername(), request.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (AuthException exception) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Wrong username or password"));
+        }
+        catch (Exception exception) {
             log.error("Error creating user", exception);
             return ResponseEntity
                     .internalServerError()
